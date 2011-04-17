@@ -118,7 +118,9 @@ public class ScrabbleBot {
     	System.out.println("No words possible. Trying to exchange " + Rack.NUM_LETTERS_TO_EXCHANGE + " letters");
         
         // No possibilities. Randomly change n letters
-        int numExchangedLetters = rack.exchangeLetters(Rack.NUM_LETTERS_TO_EXCHANGE);
+        int numExchangedLetters = (numSequentialExchanges == 2)
+        	? rack.exchangeLetters(Rack.NUM_LETTERS_ON_RACK) 
+        	: rack.exchangeLetters(Rack.NUM_LETTERS_TO_EXCHANGE);
         if(numExchangedLetters > 0){
             System.out.println("Exchanged " + numExchangedLetters + " letters");
         } else {

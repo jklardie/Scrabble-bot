@@ -137,12 +137,14 @@ public class Board {
      */
     private int getHorizontalWordPoints(WordPosition wordPos, int row, Rack rack){
     	int c;
-    	for(c=wordPos.col; c>0; c--){
+    	for(c=wordPos.col; c>=0; c--){
     		if(c < wordPos.col && board[row][c] == LetterBag.EMPTY_LETTER){
     			c++; 
     			break;
     		}
     	}
+    	
+    	if(c < 0) c = 0;
     	
     	// c now points to the first letter in the word
     	if(wordPos.horizontal) wordPos.fromRack = "";
@@ -153,6 +155,7 @@ public class Board {
     	
     	String remainingRack = rack.getLetters();
     	int index;
+    	int wordLength = wordPos.word.length();
     	
     	for(; c<BOARD_SIZE; c++){
     		if(wordPos.horizontal){
@@ -161,7 +164,7 @@ public class Board {
     			wordIndex = (c == wordPos.col) ? row - wordPos.row : -1;
     		}
 
-    		if(wordIndex >= 0 && wordIndex < wordPos.word.length()){
+    		if(wordIndex >= 0 && wordIndex < wordLength){
     			letter = wordPos.word.charAt(wordIndex);
     			
     			if(board[row][c] == LetterBag.EMPTY_LETTER){
@@ -197,7 +200,6 @@ public class Board {
     			letter = board[row][c];
     		}
     		
-    		
     		fullWord += letter;
     		letterScore = LetterBag.getLetterScore(letter);
     		switch (BONUS_FIELDS[row][c]) {
@@ -229,9 +231,16 @@ public class Board {
     		// Word is invalid if it is not a new word on the board
     		if(!newWord) 
     			return VALID_WORD_NOT_NEW;
+
+//    		
+//    		if(fullWord.length() >= wordLength){
+//    			String direction = (wordPos.horizontal) ? "horizontal" : "vertical";
+//    			System.out.println("Check Horizontal word '"+fullWord+"' created by laying " + direction + " word '"+wordPos.word+"'");
+//    		}
     		
     		return wordScore * wordMultiplier;
     	}
+    	
     	
 		// the word only contains one character, so we did not create a new word.
 		// we return 0, which means this is a valid move, but does not score extra points
@@ -245,12 +254,14 @@ public class Board {
      */
     private int getVerticalWordPoints(WordPosition wordPos, int col, Rack rack){
     	int r;
-    	for(r=wordPos.row; r>0; r--){
+    	for(r=wordPos.row; r>=0; r--){
     		if(r < wordPos.row && board[r][col] == LetterBag.EMPTY_LETTER){
     			r++; 
     			break;
     		}
     	}
+    	
+    	if(r < 0) r = 0;
     	
     	// r now points to the first letter in the word
     	if(!wordPos.horizontal) wordPos.fromRack = "";
@@ -261,6 +272,7 @@ public class Board {
     	
     	String remainingRack = rack.getLetters();
     	int index;
+    	int wordLength = wordPos.word.length();
     	
     	for(; r<BOARD_SIZE; r++){
     		if(!wordPos.horizontal){
@@ -269,7 +281,7 @@ public class Board {
     			wordIndex = (r == wordPos.row) ? col-wordPos.col : -1;
     		}
 
-    		if(wordIndex >= 0 && wordIndex < wordPos.word.length()){
+    		if(wordIndex >= 0 && wordIndex < wordLength){
     			letter = wordPos.word.charAt(wordIndex);
     			
     			if(board[r][col] == LetterBag.EMPTY_LETTER){
@@ -333,6 +345,11 @@ public class Board {
 
     		// Word is invalid if it is not a new word on the board
     		if(!newWord) return VALID_WORD_NOT_NEW;
+    		
+//    		if(fullWord.length() > wordLength){
+//    			String direction = (wordPos.horizontal) ? "horizontal" : "vertical";
+//    			System.out.println("Check Vertical word '"+fullWord+"' created by laying " + direction + " word '"+wordPos.word+"'");
+//    		}
     		
     		return wordScore * wordMultiplier;
     	} 

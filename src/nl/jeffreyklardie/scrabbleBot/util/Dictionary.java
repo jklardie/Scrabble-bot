@@ -335,7 +335,7 @@ public class Dictionary {
     		if(boardLetters.indexOf(c) != -1){
     			includesBoardLetter = true;
     			if(includesRackLetter) return true;
-    		} else if(rackLetters.indexOf(c) != -1){
+    		} else if(rackLetters.indexOf(c) != -1 || rackLetters.indexOf(LetterBag.JOKER) != -1){
     			includesRackLetter = true;
     			if(includesBoardLetter) return true;
     		}
@@ -354,12 +354,25 @@ public class Dictionary {
 		}
 		
 		char c;
+		int boardLettersIndex, rackLettersIndex;
+		StringBuffer buf;
 		Set<Integer> keys = root.getChildren().keySet();
 		for(int charIndex : keys){
 			c = LetterBag.getCharForInt(charIndex);
 			
-			if(boardLetters.indexOf(c) != -1 || rackLetters.indexOf(c) != -1)
-				getWordsWithLetters(words, root.getChild(c), prefix + c, boardLetters, rackLetters);
+			boardLettersIndex = boardLetters.indexOf(c);
+			rackLettersIndex = rackLetters.indexOf(c);
+			if(rackLettersIndex == -1) rackLettersIndex = rackLetters.indexOf(LetterBag.JOKER);
+			
+			if(boardLettersIndex != -1){
+				buf = new StringBuffer( boardLetters.length() - 1 );
+				buf.append( boardLetters.substring(0, boardLettersIndex) ).append( boardLetters.substring(boardLettersIndex+1) );
+				getWordsWithLetters(words, root.getChild(c), prefix + c, buf.toString(), rackLetters);
+			} else if(rackLettersIndex != -1){
+				buf = new StringBuffer( rackLetters.length() - 1 );
+				buf.append( rackLetters.substring(0, rackLettersIndex) ).append( rackLetters.substring(rackLettersIndex+1) );
+				getWordsWithLetters(words, root.getChild(c), prefix + c, rackLetters, buf.toString());
+			}
 		}
 		
 		return words;
