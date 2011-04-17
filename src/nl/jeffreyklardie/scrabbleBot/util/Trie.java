@@ -67,4 +67,8 @@ public class Trie {
 		}
 	}
 	
+	public Node getRoot(){
+		return root;
+	}
+	
 }

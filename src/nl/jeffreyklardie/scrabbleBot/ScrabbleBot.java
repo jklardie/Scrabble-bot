@@ -10,8 +10,8 @@ import nl.jeffreyklardie.scrabbleBot.util.WordPosition;
 
 public class ScrabbleBot {
 
-    public static final String SMALL_DICTIONARY_PATH    = "/home/jeffrey/workspace/java/scrabblebot/src/WRDSMALL.DIC";
-    public static final String FULL_DICTIONARY_PATH     = "/home/jeffrey/workspace/java/scrabblebot/src/WRDMED.DIC";
+    public static final String SMALL_DICTIONARY_PATH    = "/home/jeffrey/workspace/scrabblebot/src/WRDSMALL.DIC";
+    public static final String FULL_DICTIONARY_PATH     = "/home/jeffrey/workspace/scrabblebot/src/WRDMED.DIC";
     
     public static final String DICTIONARY_PATH = FULL_DICTIONARY_PATH;
     public static final int MAX_SEQUENTIAL_EXCHANGES = 2;
@@ -26,6 +26,7 @@ public class ScrabbleBot {
     
     private int turn = 0;
     private int numSequentialExchanges = 0;
+    private long totalTurnTime = 0;
     private long turnStart;
     
 	public ScrabbleBot(){
@@ -54,6 +55,9 @@ public class ScrabbleBot {
 		}
 		
 		rack.printScore();
+		System.out.println(
+			String.format("Played %d turns in %.3f seconds. Avg: %.3f seconds", turn, 
+			(totalTurnTime / 1000f), (totalTurnTime / turn / 1000f)));
 	}
     
     private int takeTurn(){
@@ -69,9 +73,11 @@ public class ScrabbleBot {
         if(possibleWords.size() == 0){
             return exchangeLetters();
         } else {
-            WordPosition bestWordPos = new WordPosition();
-            for(WordPosition wordPos : possibleWords){
-                if(wordPos.score > bestWordPos.score){
+            WordPosition bestWordPos = possibleWords.get(0);
+            WordPosition wordPos;
+            for(int i=1; i<possibleWords.size(); i++){
+            	wordPos = possibleWords.get(i);
+                if(wordPos.word != null && wordPos.score > bestWordPos.score){
                     bestWordPos = wordPos;
                 }
             }
@@ -98,12 +104,12 @@ public class ScrabbleBot {
     private void playWord(WordPosition wordPos){
     	numSequentialExchanges = 0;
     	
-    	System.out.println("Playing word " + wordPos.word + " with score: " + wordPos.score);
+    	String direction = (wordPos.horizontal) ? "horizontal" : "vertical";
+    	System.out.println("Playing " + direction + " word " + wordPos.word + "(r:"+wordPos.row+"-c:"+wordPos.col+") with score: " + wordPos.score);
         
         rack.addScore(wordPos.score);
+        board.putWord(wordPos);
         rack.removeLetters(wordPos.fromRack);
-        
-        board.putWord(wordPos, false);
     }
     
     private int exchangeLetters(){
@@ -123,7 +129,10 @@ public class ScrabbleBot {
     }
     
     private void printTurnTime(long turnStart){
-        System.out.println(String.format("Turn %d took %.3f seconds", turn, (System.currentTimeMillis()-turnStart) / 1000f));
+    	long turnTime = System.currentTimeMillis()-turnStart;
+    	totalTurnTime += turnTime;
+        System.out.println(String.format("Turn %d took %.3f seconds", turn, (turnTime / 1000f)));
+        System.out.println(String.format("Average turn time: %.3f seconds", (totalTurnTime / turn / 1000f)));
     }
     
     public static void main(String[] args){

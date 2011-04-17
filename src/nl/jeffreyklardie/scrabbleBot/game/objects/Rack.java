@@ -56,20 +56,22 @@ public class Rack {
     }
     
     /**
-     * The letters in the word are removed from the rack. This 
-     * is done just before the word is put onto the board.
+     * The letters in the word are removed from the rack. 
      * @param letters
      */
     public void removeLetters(String word){
         int numRemoved = 0;
+        int i;
+        
+        StringBuffer remainingLetters = new StringBuffer(word);
         char[] letters = word.toCharArray();
         
     	removeLetter:
-        for(int i=0; i<letters.length; i++){
+        for(i=0; i<letters.length; i++){
             for(int j=0; j<NUM_LETTERS_ON_RACK; j++){
                 if(letters[i] == rack[j]) {
                     rack[j] = LetterBag.EMPTY_LETTER;
-                    letters[i] = LetterBag.EMPTY_LETTER;
+                    remainingLetters.deleteCharAt(remainingLetters.indexOf(letters[i] + ""));
                     numRemoved++;
                     continue removeLetter;
                 }
@@ -77,10 +79,12 @@ public class Rack {
         }
     
     	if(letters.length > numRemoved){
-    		for(int i=0; i<NUM_LETTERS_ON_RACK; i++){
-    			if(rack[i] == LetterBag.JOKER){
-    				rack[i] = LetterBag.EMPTY_LETTER;
+    		for(int j=0; j<NUM_LETTERS_ON_RACK; j++){
+    			if(rack[j] == LetterBag.JOKER){
+    				rack[j] = LetterBag.EMPTY_LETTER;
     				
+    				System.out.println("Used joker for letter " + remainingLetters.charAt(0));
+    				remainingLetters.deleteCharAt(0);
     				if(++numRemoved == letters.length) break;
     			}
     		}
@@ -88,6 +92,11 @@ public class Rack {
     	
     	numLettersOnRack -= numRemoved;
     
+    	if(word.length() != numRemoved){
+    		System.out.println("Error. Could not play word from rack");
+    		System.exit(1);
+    	}
+    	
         fillRackWithLetters();
     }
     
@@ -117,8 +126,8 @@ public class Rack {
     	return numLettersOnRack;
     }
     
-    public char[] getLetters(){
-    	return rack;
+    public String getLetters(){
+    	return new String(rack);
     }
     
     public void addScore(int score){

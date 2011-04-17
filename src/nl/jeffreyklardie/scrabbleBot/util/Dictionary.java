@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
 
 import nl.jeffreyklardie.scrabbleBot.game.objects.LetterBag;
 
@@ -48,8 +49,7 @@ public class Dictionary {
         } 
         
     }
-    
-        
+            
     public void printNumWords(){
         System.out.println("The dictionary contains " + numWords + " words.");
     }
@@ -59,13 +59,84 @@ public class Dictionary {
     }
     
     public ArrayList<String> getPossibleWords(String letters){
-    	return getPossibleWords(letters, ' ');
+    	return getPossibleWords(new ArrayList<String>(), letters, "");
     }
     
-    public ArrayList<String> getPossibleWords(String letters, char requiredLetter){
-    	ArrayList<String> words = new ArrayList<String>();
-    	getPossibleWords(words, letters, "", requiredLetter);
-    	return words;
+    private ArrayList<String> getPossibleWords(ArrayList<String> words, String letters, String prefix){
+    	String word;
+
+        for(int i=0; i<letters.length(); i++){
+            word = prefix + letters.charAt(i);
+
+            if(trie.contains(word)){
+                if(word.indexOf(LetterBag.JOKER) == -1){
+                	// no jokers in the word, so we can simply add it
+                	if(!words.contains(word)) words.add(word);
+                } else {
+                	// the word contains jokers. Add all possible words where jokers
+                	// are replaced with normal letters
+                	ArrayList<String> wordsWithoutJokers = getWordsWithoutJokers(word);
+                	for(String tmpWord : wordsWithoutJokers)
+                		if(!words.contains(tmpWord)) words.add(tmpWord);
+                }
+            }
+
+            String remainingLetters = "";
+            for(int j=0; j<letters.length(); j++) if(i != j) remainingLetters += letters.charAt(j);
+            
+            getPossibleWords(words, remainingLetters, word);
+        }
+        
+        return words;
+    }
+
+    /**
+     * Return all possible words that contain at least on letter from 
+     * the board, and one letter from the rack.
+     * @param boardLetters
+     * @param rackLetters
+     * @return
+     */
+    public ArrayList<String> getPossibleWords(String boardLetters, String rackLetters){
+    	return getPossibleWords(new ArrayList<String>(), boardLetters, rackLetters, "");
+    }
+    
+    private ArrayList<String> getPossibleWords(ArrayList<String> words, String boardLetters, String rackLetters, String prefix){
+    	
+    	ArrayList<String> w = new ArrayList<String>();
+        for(int i=0; i<rackLetters.length(); i++){
+       		getPossibleWords(w, boardLetters, "", rackLetters.charAt(i));
+       		for(String word : w){
+       			if(trie.contains(word) && wordContainsLetter(word, boardLetters)){
+                    if(word.indexOf(LetterBag.JOKER) == -1){
+                    	// no jokers in the word, so we can simply add it
+                    	if(!words.contains(word)) words.add(word);
+                    } else {
+                    	// the word contains jokers. Add all possible words where jokers
+                    	// are replaced with normal letters
+                    	ArrayList<String> wordsWithoutJokers = getWordsWithoutJokers(word);
+                    	for(String tmpWord : wordsWithoutJokers)
+                    		if(!words.contains(tmpWord)) words.add(tmpWord);
+                    }
+                }
+       		}
+        }
+        
+        return words;
+    }
+    
+    /**
+     * Return whether the given word contains at least on of the given letters
+     *  
+     * @param letters
+     * @return boolean
+     */
+    private boolean wordContainsLetter(String word, String letters){
+    	for(char c : word.toCharArray()){
+    		if(letters.indexOf(c) != -1) return true;
+    	}
+    	
+    	return false;
     }
 
     private void getPossibleWords(ArrayList<String> words, String letters, String prefix, char requiredLetter){      
@@ -174,87 +245,125 @@ public class Dictionary {
 //        return words;
 //    }
 //    
-    /**
-     * Find all possible words that can be formed with the given letters
-     * @param prefix
-     * @param letters
-     * @param maxLength
-     * @return ArrayList<String> words
-     */
-    public ArrayList<String> getPossibleWordsWithPrefix(String prefix, String letters){
-        return getPossibleWordsWithPrefix(prefix, letters, 99);
-    }
-    
-    /**
-     * Find all possible words with max length n that start with prefix
-     * @param prefix
-     * @param letters
-     * @param maxLength
-     * @return ArrayList<String> words
-     */
-    public ArrayList<String> getPossibleWordsWithPrefix(String prefix, String letters, int maxLength){
-        ArrayList<String> words = new ArrayList<String>();
-        getPossibleWords(words, letters, "", maxLength, prefix, "");
-        return words;
-    }
-    
-    
+//    /**
+//     * Find all possible words that can be formed with the given letters
+//     * @param prefix
+//     * @param letters
+//     * @param maxLength
+//     * @return ArrayList<String> words
+//     */
+//    public ArrayList<String> getPossibleWordsWithPrefix(String prefix, String letters){
+//        return getPossibleWordsWithPrefix(prefix, letters, 99);
+//    }
+//    
+//    /**
+//     * Find all possible words with max length n that start with prefix
+//     * @param prefix
+//     * @param letters
+//     * @param maxLength
+//     * @return ArrayList<String> words
+//     */
+//    public ArrayList<String> getPossibleWordsWithPrefix(String prefix, String letters, int maxLength){
+//        ArrayList<String> words = new ArrayList<String>();
+//        getPossibleWords(words, letters, "", maxLength, prefix, "");
+//        return words;
+//    }
+//    
+//    
 //    public ArrayList<String> getPossibleWords(String letters, String startingWith, String endingWith){
 //    	ArrayList<String> words = new ArrayList<String>();
 //    	getPossibleWords(words, letters, "", 15, startingWith, endingWith);
 //    	return words;
 //    }
+//    
+//    /**
+//     * @param words
+//     * @param letters
+//     * @param prefix
+//     * @param maxLength
+//     * @param startingWith
+//     * @param endingWith
+//     */
+//    private void getPossibleWords(ArrayList<String> words, String letters, String prefix, int maxLength, String startingWith, String endingWith){      
+//        String word;
+//        if(startingWith.length() > 0){
+//            prefix = startingWith;
+//            startingWith = "";
+//            if(prefix.length() > maxLength) return;
+//        }
+//
+//        for(int i=0; i<letters.length(); i++){
+//            word = prefix + letters.charAt(i);
+//
+//            if(trie.contains(word + endingWith) && !words.contains(word + endingWith)){
+//            	if(word.indexOf(LetterBag.JOKER) == -1){
+//                	// no jokers in the word, so we can simply add it
+//                	if(!words.contains(word + endingWith)) words.add(word + endingWith);
+//                } else {
+//                	// the word contains jokers. Add all possible words where jokers
+//                	// are replaced with normal letters
+//                	ArrayList<String> wordsWithoutJokers = getWordsWithoutJokers(word + endingWith);
+//                	for(String tmpWord : wordsWithoutJokers)
+//                		if(!words.contains(tmpWord)) words.add(tmpWord);
+//                }
+//            }
+//
+//            String remainingLetters = "";
+//            for(int j=0; j<letters.length(); j++) if(i != j) remainingLetters += letters.charAt(j);
+//            
+//            if(word.length() + endingWith.length() + 1 <= maxLength){
+//                getPossibleWords(words, remainingLetters, word, maxLength, startingWith, endingWith);
+//            }
+//        }
+//    }
+//    
     
-    /**
-     * @param words
-     * @param letters
-     * @param prefix
-     * @param maxLength
-     * @param startingWith
-     * @param endingWith
-     */
-    private void getPossibleWords(ArrayList<String> words, String letters, String prefix, int maxLength, String startingWith, String endingWith){      
-        String word;
-        if(startingWith.length() > 0){
-            prefix = startingWith;
-            startingWith = "";
-            if(prefix.length() > maxLength) return;
-        }
-
-        for(int i=0; i<letters.length(); i++){
-            word = prefix + letters.charAt(i);
-
-            if(trie.contains(word + endingWith) && !words.contains(word + endingWith)){
-            	if(word.indexOf(LetterBag.JOKER) == -1){
-                	// no jokers in the word, so we can simply add it
-                	if(!words.contains(word + endingWith)) words.add(word + endingWith);
-                } else {
-                	// the word contains jokers. Add all possible words where jokers
-                	// are replaced with normal letters
-                	ArrayList<String> wordsWithoutJokers = getWordsWithoutJokers(word + endingWith);
-                	for(String tmpWord : wordsWithoutJokers)
-                		if(!words.contains(tmpWord)) words.add(tmpWord);
-                }
-            }
-
-            String remainingLetters = "";
-            for(int j=0; j<letters.length(); j++) if(i != j) remainingLetters += letters.charAt(j);
-            
-            if(word.length() + endingWith.length() + 1 <= maxLength){
-                getPossibleWords(words, remainingLetters, word, maxLength, startingWith, endingWith);
-            }
-        }
+//    public int getWordScore(String word){
+//        int score = 0;
+//        for(char c : word.toCharArray()){
+//            score += LetterBag.getLetterScore(c);
+//        }
+//        
+//        return score;
+//    }
+    
+    private boolean wordContainsLettersFromBoth(String word, String boardLetters, String rackLetters){
+    	boolean includesBoardLetter = false;
+    	boolean includesRackLetter = false;
+    	
+    	for(char c : word.toCharArray()){
+    		if(boardLetters.indexOf(c) != -1){
+    			includesBoardLetter = true;
+    			if(includesRackLetter) return true;
+    		} else if(rackLetters.indexOf(c) != -1){
+    			includesRackLetter = true;
+    			if(includesBoardLetter) return true;
+    		}
+    	}
+    	
+    	return false;
     }
     
-    
-    public int getWordScore(String word){
-        int score = 0;
-        for(char c : word.toCharArray()){
-            score += LetterBag.getLetterScore(c);
-        }
-        
-        return score;
+    public ArrayList<String> getWordsWithLetters(String boardLetters, String rackLetters){
+    	return getWordsWithLetters(new ArrayList<String>(boardLetters.length() * 3), trie.getRoot(), "", boardLetters, rackLetters);
     }
+    
+	private ArrayList<String> getWordsWithLetters(ArrayList<String> words, Node root, String prefix, String boardLetters, String rackLetters){
+		if(root.isWord() && wordContainsLettersFromBoth(prefix, boardLetters, rackLetters)){
+			words.add(prefix);
+		}
+		
+		char c;
+		Set<Integer> keys = root.getChildren().keySet();
+		for(int charIndex : keys){
+			c = LetterBag.getCharForInt(charIndex);
+			
+			if(boardLetters.indexOf(c) != -1 || rackLetters.indexOf(c) != -1)
+				getWordsWithLetters(words, root.getChild(c), prefix + c, boardLetters, rackLetters);
+		}
+		
+		return words;
+	}
     
     public boolean contains(String word){
         return trie.contains(word);
