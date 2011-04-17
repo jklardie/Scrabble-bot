@@ -50,9 +50,12 @@ public class Rack {
         if(numLetters == 0 || !LetterBag.letterExchangePossible()) return 0;
         
         int letterIndex = getLetterIndexToExchange();
-        rack[letterIndex] = LetterBag.exchangeLetter(rack[letterIndex]);
+        for(int i=numLetters; i>0; i--){
+        	letterIndex = (i+3) % 7;
+        	rack[letterIndex] = LetterBag.exchangeLetter(rack[letterIndex]);
+        }
         
-        return 1 + exchangeLetters(--numLetters);
+        return numLetters;
     }
     
     /**
