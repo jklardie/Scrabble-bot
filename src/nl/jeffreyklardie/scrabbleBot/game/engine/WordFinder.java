@@ -22,20 +22,17 @@ public abstract class WordFinder {
 
 //	    System.out.println(possibleWords.toString());
 		
-		for(row=0; row < Board.BOARD_SIZE; row++){
-			for(col=0; col < Board.BOARD_SIZE; col++){
-				letter = board.get(row, col);
-				
-				// skip empty squares on the board
-				if(letter == LetterBag.EMPTY_LETTER) continue;
-				
-//				for(WordPosition wordPos : getWordPositions(board, row, col, possibleWords, rack)){
-//					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
-//				}
-				
-				wordPos = getBestWordPosition(board, row, col, possibleWords, rack);
-				if(wordPos != null && wordPos.score > bestWordPos.score) bestWordPos = wordPos;
-			}
+		for(int linear : board.getLinearBoard()){
+			row = board.getRowFromLinear(linear);
+			col = board.getColFromLinear(linear);
+			
+			letter = board.get(row, col);
+			
+			// skip empty squares on the board
+			if(letter == LetterBag.EMPTY_LETTER) continue;
+			
+			wordPos = getBestWordPosition(board, row, col, possibleWords, rack);
+			if(wordPos != null && wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 		}
 		
 		if(bestWordPos.score > 0)

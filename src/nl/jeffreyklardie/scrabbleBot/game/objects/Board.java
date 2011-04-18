@@ -1,6 +1,8 @@
 package nl.jeffreyklardie.scrabbleBot.game.objects;
 
 
+import java.util.ArrayList;
+
 import nl.jeffreyklardie.scrabbleBot.util.Dictionary;
 import nl.jeffreyklardie.scrabbleBot.util.WordPosition;
 
@@ -37,7 +39,14 @@ public class Board {
         {0,3,0,0,0,2,0,0,0,2,0,0,0,3,0},
         {4,0,0,1,0,0,0,4,0,0,0,1,0,0,4},
     };
-        
+    
+    /**
+     * Linear representation of the board used for performance optimization.
+     * col = Integer % BOARD_SIZE
+     * row = (Integer - col) / BOARD_SIZE
+     */
+    private ArrayList<Integer> linearBoard;
+    
     private static Board instance; 
     private char[][] board;
     private boolean boardIsEmpty = true;
@@ -55,6 +64,8 @@ public class Board {
                 board[row][col] = LetterBag.EMPTY_LETTER;
             }
         }
+        
+        linearBoard = new ArrayList<Integer>(LetterBag.TOTAL_LETTERS_IN_GAME);
     }
     
     /**
@@ -64,13 +75,12 @@ public class Board {
      */
     public String getLetters(){
     	String letters = "";
-    	for(int row=0; row < BOARD_SIZE; row++){
-            for(int col=0; col < BOARD_SIZE; col++){
-                if(board[row][col] != LetterBag.EMPTY_LETTER){
-                	letters += board[row][col];
-                }
-            }
-        }
+    	int row,col;
+    	for(int linear : getLinearBoard()){
+    		row = getRowFromLinear(linear);
+			col = getColFromLinear(linear);
+			if(board[row][col] != LetterBag.EMPTY_LETTER) letters += board[row][col];
+    	}
     	
     	return letters;
     }
@@ -396,7 +406,9 @@ public class Board {
         	// Remove the bonus field so it can't be used again.
         	BONUS_FIELDS[r][c] = 0;
         	
+        	// add the letter on the board and on the linear board
             board[r][c] = newLetter;
+            linearBoard.add(getLinear(r, c));
             
             if(newLetter != letter)
             	newWord = true;
@@ -450,6 +462,22 @@ public class Board {
         }
 
         return true;
+    }
+    
+    public ArrayList<Integer> getLinearBoard(){
+    	return linearBoard;
+    }
+    
+    public int getRowFromLinear(int linear){
+    	return (linear - getColFromLinear(linear)) / BOARD_SIZE;
+    }
+    
+    public int getColFromLinear(int linear){
+    	return linear % BOARD_SIZE;
+    }
+    
+    public int getLinear(int row, int col){
+    	return (row * BOARD_SIZE) + col;
     }
     
     public char get(int row, int col){
