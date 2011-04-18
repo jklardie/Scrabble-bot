@@ -66,37 +66,46 @@ public class ScrabbleBot {
         turn++;
     	turnStart = System.currentTimeMillis();
 
-    	ArrayList<WordPosition> possibleWords = (board.isEmpty())
-    		? WordFinder.getPossibleWordsForEmptyBoard(rack)
-    		: WordFinder.getPossibleWords(board, rack);
+    	WordPosition bestWordPos = (board.isEmpty())
+    		? WordFinder.getBestWordPosForEmptyBoard(rack)
+    		: WordFinder.getBestWordPos(board, rack);
+    		
+//    	ArrayList<WordPosition> possibleWords = (board.isEmpty())
+//    		? WordFinder.getPossibleWordsForEmptyBoard(rack)
+//    		: WordFinder.getPossibleWords(board, rack);
     		
     	rack.printRack();
     		
-        if(possibleWords.size() == 0){
-            return exchangeLetters();
-        } else {
-            WordPosition bestWordPos = possibleWords.get(0);
-            WordPosition wordPos;
-            for(int i=1; i<possibleWords.size(); i++){
-            	wordPos = possibleWords.get(i);
-                if(wordPos.word != null && wordPos.score > bestWordPos.score){
-                    bestWordPos = wordPos;
-                }
-            }
-            
-            // We found the best word for the board, so lets put it down
-            playWord(bestWordPos);
-        }
+    	if(bestWordPos == null){
+    		return exchangeLetters();
+    	} 
+    	
+    	playWord(bestWordPos);
+//        if(possibleWords.size() == 0){
+//            return exchangeLetters();
+//        } else {
+//            WordPosition bestWordPos = possibleWords.get(0);
+//            WordPosition wordPos;
+//            for(int i=1; i<possibleWords.size(); i++){
+//            	wordPos = possibleWords.get(i);
+//                if(wordPos.word != null && wordPos.score > bestWordPos.score){
+//                    bestWordPos = wordPos;
+//                }
+//            }
+//            
+//            // We found the best word for the board, so lets put it down
+//            playWord(bestWordPos);
+//        }
         
     	printTurnTime(turnStart);
     	System.out.println("");
     	
     	board.printBoard();
     	rack.printScore();
-    	if(!board.validBoardState()){
-    	    System.out.println("Error. Board state is invalid at the end of the turn.");
-    	    System.exit(1);
-    	}
+//    	if(!board.validBoardState()){
+//    	    System.out.println("Error. Board state is invalid at the end of the turn.");
+//    	    System.exit(1);
+//    	}
     	
     	// turn ended and we randomly picked new letters for our rack. If the
     	// rack is empty at this point, then the game ends

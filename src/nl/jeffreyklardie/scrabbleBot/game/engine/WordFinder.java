@@ -11,9 +11,9 @@ import java.util.ArrayList;
 public abstract class WordFinder {
 
     
-	public static ArrayList<WordPosition> getPossibleWords(Board board, Rack rack){
+	public static WordPosition getBestWordPos(Board board, Rack rack){
 		Dictionary dict = Dictionary.getInstance();
-		ArrayList<WordPosition> words = new ArrayList<WordPosition>();
+		WordPosition bestWordPos = new WordPosition();
 		ArrayList<String> possibleWords = dict.getWordsWithLetters(board.getLetters(), rack.getLetters());
 		
 		int row, col;
@@ -28,11 +28,16 @@ public abstract class WordFinder {
 				// skip empty squares on the board
 				if(letter == LetterBag.EMPTY_LETTER) continue;
 				
-				words.addAll(getWordPositions(board, row, col, possibleWords, rack));
+				for(WordPosition wordPos : getWordPositions(board, row, col, possibleWords, rack)){
+					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
+				}
 			}
 		}
 		
-		return words;
+		if(bestWordPos.score > 0)
+			return bestWordPos;
+		
+		return null;
 	}
 	
 	/**
@@ -81,8 +86,9 @@ public abstract class WordFinder {
 		
 		return wordPositions;
 	}
-    public static ArrayList<WordPosition> getPossibleWordsForEmptyBoard(Rack rack){
-    	ArrayList<WordPosition> words = new ArrayList<WordPosition>();
+	
+    public static WordPosition getBestWordPosForEmptyBoard(Rack rack){
+    	WordPosition bestWordPos = new WordPosition();
     	Dictionary dict = Dictionary.getInstance();
     	
 		ArrayList<String> dictWords = dict.getPossibleWords(rack.toString());
@@ -103,32 +109,31 @@ public abstract class WordFinder {
 	            col = (boardMiddleIndex - (int)(wordLength/2));
 	            wordPos = new WordPosition(boardMiddleIndex, col, true, -1, word);
 	            score = Board.getInstance().getWordScore(wordPos, rack);
-	            if(score > 0) {
+	            if(score > bestWordPos.score) {
 	            	wordPos.score = score;
-	            	words.add(wordPos);
+	            	bestWordPos = wordPos;
 	            }
 	        } else {
 	            // we know that the word length is max 7, so the current word has a length
 	            // of 5, 6 or 7. We can now also hit a 2 letter bonus, so we need to check what
 	            // position will bring the highest score.
-	            WordPosition bestPos = new WordPosition();
-	            
 	            int startCol = boardMiddleIndex + 1 - wordLength;
 	            while(startCol <= boardMiddleIndex){
 	            	wordPos = new WordPosition(boardMiddleIndex, startCol, true, -1, word);
 	            	score = Board.getInstance().getWordScore(wordPos, rack);
-		            if(score > bestPos.score){
+		            if(score > bestWordPos.score){
 		            	wordPos.score = score;
-		            	bestPos = wordPos;
+		            	bestWordPos = wordPos;
 		            }
 	                startCol++;
 	            }
 	
-	            if(bestPos.score > 0)
-	            	words.add(bestPos);
 	        }
 		}
 		
-		return words;
+		if(bestWordPos.score > 0)
+			return bestWordPos;
+		
+		return null;
     }
 }
