@@ -25,6 +25,7 @@ public class ScrabbleBot {
     private Board board;
     
     private int turn = 0;
+    private int numExchanges = 0;
     private int numSequentialExchanges = 0;
     private long totalTurnTime = 0;
     private long turnStart;
@@ -56,8 +57,9 @@ public class ScrabbleBot {
 		
 		rack.printScore();
 		System.out.println(
-			String.format("Played %d turns in %.3f seconds. Avg: %.3f seconds", turn, 
+			String.format("Played %d turns in %.3f seconds. Avg: %.3f seconds", turn - numExchanges, 
 			(totalTurnTime / 1000f), (totalTurnTime / turn / 1000f)));
+		System.out.println("Swapped " + numExchanges + " times");
 	}
     
     private int takeTurn(){
@@ -106,6 +108,10 @@ public class ScrabbleBot {
     	
     	String direction = (wordPos.horizontal) ? "horizontal" : "vertical";
     	System.out.println("Playing " + direction + " word " + wordPos.word + "(r:"+wordPos.row+"-c:"+wordPos.col+") with score: " + wordPos.score);
+    	System.out.println(wordPos.scoreCalculation);
+    	System.out.println("------------");
+    	System.out.println(" " + wordPos.score + " total");
+    	System.out.println();
         
         rack.addScore(wordPos.score);
         board.putWord(wordPos);
@@ -114,6 +120,8 @@ public class ScrabbleBot {
     
     private int exchangeLetters(){
         if(++numSequentialExchanges > MAX_SEQUENTIAL_EXCHANGES) return GAME_STATE_EXCHANGED_LIMIT_REACHED;
+        
+        numExchanges++;
         
     	System.out.println("No words possible. Trying to exchange " + Rack.NUM_LETTERS_TO_EXCHANGE + " letters");
         

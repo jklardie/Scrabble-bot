@@ -1,14 +1,12 @@
 package nl.jeffreyklardie.scrabbleBot.game.engine;
 
-import java.util.ArrayList;
-
 import nl.jeffreyklardie.scrabbleBot.game.objects.Board;
 import nl.jeffreyklardie.scrabbleBot.game.objects.LetterBag;
 import nl.jeffreyklardie.scrabbleBot.game.objects.Rack;
 import nl.jeffreyklardie.scrabbleBot.util.Dictionary;
 import nl.jeffreyklardie.scrabbleBot.util.WordPosition;
 
-
+import java.util.ArrayList;
 
 public abstract class WordFinder {
 
@@ -20,7 +18,8 @@ public abstract class WordFinder {
 		
 		int row, col;
 		char letter;
-		ArrayList<String> wordsWithLetter;
+
+//	    System.out.println(possibleWords.toString());
 		
 		for(row=0; row < Board.BOARD_SIZE; row++){
 			for(col=0; col < Board.BOARD_SIZE; col++){
@@ -29,11 +28,7 @@ public abstract class WordFinder {
 				// skip empty squares on the board
 				if(letter == LetterBag.EMPTY_LETTER) continue;
 				
-				// the board contains a letter. Now get all possible words containing 
-				// that letter, and at least one letter from the rack
-				wordsWithLetter = getWordsWithLetter(possibleWords, letter);
-				
-				words.addAll(getWordPositions(board, row, col, wordsWithLetter, rack));
+				words.addAll(getWordPositions(board, row, col, possibleWords, rack));
 			}
 		}
 		
@@ -66,7 +61,7 @@ public abstract class WordFinder {
 	 * @param wordWithLetter
 	 * @return
 	 */
-	private static ArrayList<WordPosition> getWordPositions(Board board, int row, int col, ArrayList<String> wordsWithLetter, Rack rack){
+	private static ArrayList<WordPosition> getWordPositions(Board board, int row, int col, ArrayList<String> possibleWords, Rack rack){
 		ArrayList<WordPosition> wordPositions = new ArrayList<WordPosition>();
 		
 		int letterIndex;
@@ -75,8 +70,10 @@ public abstract class WordFinder {
 		String word; 
 		
 		// for each word check the possible positions using the letter from the board
-		for(int i=0; i<wordsWithLetter.size(); i++){
-			word = wordsWithLetter.get(i); 
+		for(int i=0; i<possibleWords.size(); i++){
+			word = possibleWords.get(i);
+			if(word.indexOf(letter) == -1) continue;
+			
 			letterIndex = word.indexOf(letter);
 			while(letterIndex != -1){
 				// check horizontal

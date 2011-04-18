@@ -58,7 +58,7 @@ public class Board {
     }
     
     /**
-     * Return the unique letters that are on the board
+     * Return the letters that are on the board as a string
      * 
      * @return
      */
@@ -66,7 +66,7 @@ public class Board {
     	String letters = "";
     	for(int row=0; row < BOARD_SIZE; row++){
             for(int col=0; col < BOARD_SIZE; col++){
-                if(board[row][col] != LetterBag.EMPTY_LETTER && letters.indexOf(board[row][col]) == -1){
+                if(board[row][col] != LetterBag.EMPTY_LETTER){
                 	letters += board[row][col];
                 }
             }
@@ -101,8 +101,12 @@ public class Board {
     		tmpScore = getHorizontalWordPoints(wordPos, wordPos.row, rack);
     		if(tmpScore == INVALID_WORD || tmpScore == VALID_WORD_NOT_NEW) return INVALID_WORD;
     		score += tmpScore;
+    		wordPos.addScoreLine(tmpScore + " " + wordPos.word);
     		
-    		if(wordPos.fromRack.length() == Rack.NUM_LETTERS_ON_RACK) score += 50;
+    		if(wordPos.fromRack.length() == Rack.NUM_LETTERS_ON_RACK){
+    		    score += 50;
+                wordPos.addScoreLine(" + " + 50 + " Letter bonus");
+    		}
     		
     		// get the score for the vertical created words, or return if the position is invalid
     		for(int c=wordPos.col; c<wordPos.col + wordPos.word.length(); c++){
@@ -115,8 +119,12 @@ public class Board {
     		tmpScore = getVerticalWordPoints(wordPos, wordPos.col, rack);
     		if(tmpScore == INVALID_WORD || tmpScore == VALID_WORD_NOT_NEW) return INVALID_WORD;
     		score += tmpScore;
+    		wordPos.addScoreLine(tmpScore + " " + wordPos.word);
     		
-    		if(wordPos.fromRack.length() == Rack.NUM_LETTERS_ON_RACK) score += 50;
+    		if(wordPos.fromRack.length() == Rack.NUM_LETTERS_ON_RACK) {
+    		    score += 50;
+    		    wordPos.addScoreLine(" + " + 50 + " Letter bonus");
+    		}
     		
     		// get the score for the horizontal created words, or return if the position is invalid
     		for(int r=wordPos.row; r<wordPos.row + wordPos.word.length(); r++){
@@ -156,6 +164,7 @@ public class Board {
     	String remainingRack = rack.getLetters();
     	int index;
     	int wordLength = wordPos.word.length();
+    	boolean useJokerForLetter = false;
     	
     	for(; c<BOARD_SIZE; c++){
     		if(wordPos.horizontal){
@@ -183,6 +192,7 @@ public class Board {
     		    				return INVALID_WORD;
     		    			}
     		    			index = jokerIndex;
+    		    			useJokerForLetter = true;
     		    		}
     		    		remainingRack = (new StringBuffer(remainingRack).deleteCharAt(index).toString());
     		    		
@@ -201,7 +211,7 @@ public class Board {
     		}
     		
     		fullWord += letter;
-    		letterScore = LetterBag.getLetterScore(letter);
+    		letterScore = (useJokerForLetter) ? 0 : LetterBag.getLetterScore(letter);
     		switch (BONUS_FIELDS[row][c]) {
 				case BONUS_LETTER_TIMES_TWO:
 					letterScore *= 2;
@@ -237,6 +247,8 @@ public class Board {
 //    			String direction = (wordPos.horizontal) ? "horizontal" : "vertical";
 //    			System.out.println("Check Horizontal word '"+fullWord+"' created by laying " + direction + " word '"+wordPos.word+"'");
 //    		}
+    		
+    		if(!wordPos.horizontal) wordPos.addScoreLine("+" + wordScore * wordMultiplier + " " + fullWord);
     		
     		return wordScore * wordMultiplier;
     	}
@@ -350,6 +362,8 @@ public class Board {
 //    			String direction = (wordPos.horizontal) ? "horizontal" : "vertical";
 //    			System.out.println("Check Vertical word '"+fullWord+"' created by laying " + direction + " word '"+wordPos.word+"'");
 //    		}
+    		
+    		if(wordPos.horizontal) wordPos.addScoreLine("+" + wordScore * wordMultiplier + " " + fullWord);
     		
     		return wordScore * wordMultiplier;
     	} 

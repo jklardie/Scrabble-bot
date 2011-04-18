@@ -349,7 +349,7 @@ public class Dictionary {
     }
     
 	private ArrayList<String> getWordsWithLetters(ArrayList<String> words, Node root, String prefix, String boardLetters, String rackLetters){
-		if(root.isWord() && wordContainsLettersFromBoth(prefix, boardLetters, rackLetters)){
+		if(root.isWord()){
 			words.add(prefix);
 		}
 		
@@ -362,7 +362,6 @@ public class Dictionary {
 			
 			boardLettersIndex = boardLetters.indexOf(c);
 			rackLettersIndex = rackLetters.indexOf(c);
-			if(rackLettersIndex == -1) rackLettersIndex = rackLetters.indexOf(LetterBag.JOKER);
 			
 			if(boardLettersIndex != -1){
 				buf = new StringBuffer( boardLetters.length() - 1 );
@@ -371,7 +370,7 @@ public class Dictionary {
 			} else if(rackLettersIndex != -1){
 				buf = new StringBuffer( rackLetters.length() - 1 );
 				buf.append( rackLetters.substring(0, rackLettersIndex) ).append( rackLetters.substring(rackLettersIndex+1) );
-				getWordsWithLetters(words, root.getChild(c), prefix + c, rackLetters, buf.toString());
+				getWordsWithLetters(words, root.getChild(c), prefix + c, boardLetters, buf.toString());
 			}
 		}
 		
