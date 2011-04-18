@@ -18,6 +18,7 @@ public abstract class WordFinder {
 		
 		int row, col;
 		char letter;
+		WordPosition wordPos;
 
 //	    System.out.println(possibleWords.toString());
 		
@@ -28,9 +29,12 @@ public abstract class WordFinder {
 				// skip empty squares on the board
 				if(letter == LetterBag.EMPTY_LETTER) continue;
 				
-				for(WordPosition wordPos : getWordPositions(board, row, col, possibleWords, rack)){
-					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
-				}
+//				for(WordPosition wordPos : getWordPositions(board, row, col, possibleWords, rack)){
+//					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
+//				}
+				
+				wordPos = getBestWordPosition(board, row, col, possibleWords, rack);
+				if(wordPos != null && wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 			}
 		}
 		
@@ -50,8 +54,8 @@ public abstract class WordFinder {
 	 * @param wordWithLetter
 	 * @return
 	 */
-	private static ArrayList<WordPosition> getWordPositions(Board board, int row, int col, ArrayList<String> possibleWords, Rack rack){
-		ArrayList<WordPosition> wordPositions = new ArrayList<WordPosition>();
+	private static WordPosition getBestWordPosition(Board board, int row, int col, ArrayList<String> possibleWords, Rack rack){
+		WordPosition bestWordPos = new WordPosition();
 		
 		int letterIndex;
 		char letter = board.get(row, col);
@@ -69,14 +73,14 @@ public abstract class WordFinder {
 				if(col-letterIndex >= 0 && (col-letterIndex+word.length()-1) < Board.BOARD_SIZE){
 					wordPos = new WordPosition(row, col - letterIndex, true, -1, word);
 					wordPos.score = board.getWordScore(wordPos, rack);
-					if(wordPos.score > 0) wordPositions.add(wordPos);
+					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 				}
 				
 				// check vertical
 				if(row-letterIndex >= 0 && (row-letterIndex+word.length()-1) < Board.BOARD_SIZE){
 					wordPos = new WordPosition(row - letterIndex, col, false, -1, word);
 					wordPos.score = board.getWordScore(wordPos, rack);
-					if(wordPos.score > 0) wordPositions.add(wordPos);
+					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 				}
 				
 				letterIndex = word.indexOf(letter, letterIndex+1);
@@ -84,7 +88,10 @@ public abstract class WordFinder {
 			
 		}
 		
-		return wordPositions;
+		if(bestWordPos.score > 0)
+			return bestWordPos;
+		
+		return null;
 	}
 	
     public static WordPosition getBestWordPosForEmptyBoard(Rack rack){
