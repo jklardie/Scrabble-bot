@@ -484,6 +484,21 @@ public class Board {
         return board[row][col];
     }
     
+    public String getLettersOnRow(int row){
+    	String letters = "";
+    	for(int col=0; col<BOARD_SIZE; col++){
+    		if(board[row][col] != LetterBag.EMPTY_LETTER) letters += board[row][col];
+    	}
+    	return letters;
+    }
+    
+    public String getLettersOnCol(int col){
+    	String letters = "";
+    	for(int row=0; row<BOARD_SIZE; row++){
+    		if(board[row][col] != LetterBag.EMPTY_LETTER) letters += board[row][col];
+    	}
+    	return letters;
+    }
     
     public void set(int row, int col, char c){
     	set(row, col, c, false);

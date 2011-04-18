@@ -1,6 +1,4 @@
 package nl.jeffreyklardie.scrabbleBot;
-import java.util.ArrayList;
-
 import nl.jeffreyklardie.scrabbleBot.game.engine.WordFinder;
 import nl.jeffreyklardie.scrabbleBot.game.objects.Board;
 import nl.jeffreyklardie.scrabbleBot.game.objects.Rack;

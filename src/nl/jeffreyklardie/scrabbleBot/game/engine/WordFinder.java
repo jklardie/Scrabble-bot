@@ -12,15 +12,11 @@ public abstract class WordFinder {
 
     
 	public static WordPosition getBestWordPos(Board board, Rack rack){
-		Dictionary dict = Dictionary.getInstance();
 		WordPosition bestWordPos = new WordPosition();
-		ArrayList<String> possibleWords = dict.getWordsWithLetters(board.getLetters(), rack.getLetters());
 		
 		int row, col;
 		char letter;
 		WordPosition wordPos;
-
-//	    System.out.println(possibleWords.toString());
 		
 		for(int linear : board.getLinearBoard()){
 			row = board.getRowFromLinear(linear);
@@ -31,7 +27,7 @@ public abstract class WordFinder {
 			// skip empty squares on the board
 			if(letter == LetterBag.EMPTY_LETTER) continue;
 			
-			wordPos = getBestWordPosition(board, row, col, possibleWords, rack);
+			wordPos = getBestWordPosition(board, row, col, rack);
 			if(wordPos != null && wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 		}
 		
@@ -51,40 +47,53 @@ public abstract class WordFinder {
 	 * @param wordWithLetter
 	 * @return
 	 */
-	private static WordPosition getBestWordPosition(Board board, int row, int col, ArrayList<String> possibleWords, Rack rack){
+	private static WordPosition getBestWordPosition(Board board, int row, int col, Rack rack){
 		WordPosition bestWordPos = new WordPosition();
 		
 		int letterIndex;
 		char letter = board.get(row, col);
 		WordPosition wordPos = new WordPosition();
-		String word; 
+		String word;
+		String rackLetters = rack.getLetters();
+
+		// check horizontal words
+		ArrayList<String> possibleHorizontalWords = Dictionary.getInstance().getWordsWithLetters(
+				board.getLettersOnCol(col), rackLetters);
 		
-		// for each word check the possible positions using the letter from the board
-		for(int i=0; i<possibleWords.size(); i++){
-			word = possibleWords.get(i);
+		for(int i=0; i<possibleHorizontalWords.size(); i++){
+			word = possibleHorizontalWords.get(i);
 			if(word.indexOf(letter) == -1) continue;
 			
 			letterIndex = word.indexOf(letter);
 			while(letterIndex != -1){
-				// check horizontal
 				if(col-letterIndex >= 0 && (col-letterIndex+word.length()-1) < Board.BOARD_SIZE){
 					wordPos = new WordPosition(row, col - letterIndex, true, -1, word);
 					wordPos.score = board.getWordScore(wordPos, rack);
 					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 				}
-				
-				// check vertical
+				letterIndex = word.indexOf(letter, letterIndex+1);
+			}
+		}
+
+		// check vertical words
+		ArrayList<String> possibleVerticalWords = Dictionary.getInstance().getWordsWithLetters(
+				board.getLettersOnRow(row), rackLetters);
+		
+		for(int i=0; i<possibleVerticalWords.size(); i++){
+			word = possibleVerticalWords.get(i);
+			if(word.indexOf(letter) == -1) continue;
+			
+			letterIndex = word.indexOf(letter);
+			while(letterIndex != -1){
 				if(row-letterIndex >= 0 && (row-letterIndex+word.length()-1) < Board.BOARD_SIZE){
 					wordPos = new WordPosition(row - letterIndex, col, false, -1, word);
 					wordPos.score = board.getWordScore(wordPos, rack);
 					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 				}
-				
 				letterIndex = word.indexOf(letter, letterIndex+1);
 			}
-			
 		}
-		
+
 		if(bestWordPos.score > 0)
 			return bestWordPos;
 		
