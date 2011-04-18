@@ -52,14 +52,6 @@ public class LetterBag {
         
     }
     
-    public static int getInitialLetterCount(char letter){
-        return LETTERS[getCharIndex(letter)][0];
-    }
-    
-    public static int getCurrentLetterCount(char letter){
-        return lettersInGame[getCharIndex(letter)][0];
-    }
-    
     public static char takeRandomLetterFromBag(){
         int letterIndex = generator.nextInt(LETTERS.length);
         while(lettersInGame[letterIndex][0] == 0){

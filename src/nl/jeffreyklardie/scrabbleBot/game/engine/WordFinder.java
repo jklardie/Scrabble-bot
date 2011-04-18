@@ -36,22 +36,6 @@ public abstract class WordFinder {
 	}
 	
 	/**
-	 * Get all words that contain a specific letter
-	 * 
-	 * @param possibleWords
-	 * @param letter
-	 * @return
-	 */
-	private static ArrayList<String> getWordsWithLetter(ArrayList<String> possibleWords, char letter){
-		ArrayList<String> wordsWithLetter = new ArrayList<String>();
-		for(String word : possibleWords){
-			if(word.indexOf(letter) != -1) wordsWithLetter.add(word);
-		}
-		
-		return wordsWithLetter;
-	}
-	
-	/**
 	 * Return all the possible positions for a board position given a set of possible
 	 * words.
 	 * 
@@ -97,80 +81,6 @@ public abstract class WordFinder {
 		
 		return wordPositions;
 	}
-	
-//    public static ArrayList<WordPosition> getPossibleWords(Board board, Rack rack){
-//        // For each complete word on the board, try to add some letters to form a new word
-//        int row=0, col=0, numEmptyBeforeWord=0;
-//        String word;
-//        Dictionary dict = Dictionary.getInstance();
-//        ArrayList<WordPosition> words = new ArrayList<WordPosition>();
-//        ArrayList<String> possibleWords = new ArrayList<String>();
-//        
-//        for(int i=0; i<2; i++){
-//        	boolean reversed = i==1;
-//        	row = 0;
-//			col = 0;
-//	        while(row < Board.BOARD_SIZE){
-//	            col = 0;
-//	            while(col < Board.BOARD_SIZE){
-//	                word = "";
-//	                
-//	                // skip all empty squares
-//	                numEmptyBeforeWord=0;
-//	                while(col < Board.BOARD_SIZE && board.get(row, col, reversed) == LetterBag.EMPTY_LETTER){
-//	                    col++;
-//	                    numEmptyBeforeWord++;
-//	                }
-//	                
-//	                // read word
-//	                while(col < Board.BOARD_SIZE && board.get(row, col, reversed) != LetterBag.EMPTY_LETTER){
-//	                    word += board.get(row, col, reversed);
-//	                    col++;
-//	                }
-//	                
-//	                if(word.length() > 0){
-//	                    // Found a letter/word. 
-//	                    // Check if we can put some letters in front of the word
-//	                    possibleWords = dict.getPossibleWordsWithPostfix(word, rack.toString(), numEmptyBeforeWord + word.length());
-//	                    
-//	                    // Check if we can put some letters after the word. First find out how many empty squares we 
-//	                    // have after the word
-//	                    int numEmptyAfterWord = 0;
-//	                    for(int j=col; j<Board.BOARD_SIZE; j++){
-//	                        if(board.get(row, j, reversed) != LetterBag.EMPTY_LETTER) {
-//	                            numEmptyAfterWord--;
-//	                            break;
-//	                        }
-//	                        numEmptyAfterWord++;
-//	                    }
-//	                    
-//	                    // check if we can put some letters after the word
-//	                    possibleWords.addAll(dict.getPossibleWordsWithPrefix(word, rack.toString(), numEmptyAfterWord + word.length()) );
-//	                    WordPosition wordPos = new WordPosition();
-//	                    wordPos.horizontal = !reversed;
-//	                    for(String w : possibleWords){
-//	                        wordPos.word = w;
-//	                        wordPos.row = (reversed) ? col - w.length() : row;
-//	                        wordPos.col = (reversed) ? row : col - w.length();
-//	                        if(board.validWordPosition(wordPos)){
-//	                            wordPos.score = board.getWordScore(wordPos.word, wordPos.row, wordPos.col, wordPos.horizontal);
-//	                            words.add(wordPos);
-//	                        }
-//	                    }
-//	                }
-//	                
-//	                // NumEmpty tells how many squares in front of a word are empty. If we find multiple words per line,
-//	                // we need to make sure that we don't put them immediately next to each other. 
-//	                numEmptyBeforeWord = -1;
-//	            }
-//	            
-//	            row++;
-//	        }
-//        }
-//        
-//	    return words;
-//    }
-    
     public static ArrayList<WordPosition> getPossibleWordsForEmptyBoard(Rack rack){
     	ArrayList<WordPosition> words = new ArrayList<WordPosition>();
     	Dictionary dict = Dictionary.getInstance();

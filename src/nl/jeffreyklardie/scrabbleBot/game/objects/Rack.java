@@ -114,8 +114,6 @@ public class Rack {
         }
     }
     
-    
-    
     /**
      * TODO: create an algorithm for this.
      * Determine which letter on the rack to exchange.
