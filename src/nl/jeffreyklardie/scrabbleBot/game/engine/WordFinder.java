@@ -1,12 +1,11 @@
 package nl.jeffreyklardie.scrabbleBot.game.engine;
 
+import java.util.ArrayList;
+
 import nl.jeffreyklardie.scrabbleBot.game.objects.Board;
-import nl.jeffreyklardie.scrabbleBot.game.objects.LetterBag;
 import nl.jeffreyklardie.scrabbleBot.game.objects.Rack;
 import nl.jeffreyklardie.scrabbleBot.util.Dictionary;
 import nl.jeffreyklardie.scrabbleBot.util.WordPosition;
-
-import java.util.ArrayList;
 
 public abstract class WordFinder {
 
@@ -15,17 +14,11 @@ public abstract class WordFinder {
 		WordPosition bestWordPos = new WordPosition();
 		
 		int row, col;
-		char letter;
 		WordPosition wordPos;
 		
 		for(int linear : board.getLinearBoard()){
 			row = board.getRowFromLinear(linear);
 			col = board.getColFromLinear(linear);
-			
-			letter = board.get(row, col);
-			
-			// skip empty squares on the board
-			if(letter == LetterBag.EMPTY_LETTER) continue;
 			
 			wordPos = getBestWordPosition(board, row, col, rack);
 			if(wordPos != null && wordPos.score > bestWordPos.score) bestWordPos = wordPos;

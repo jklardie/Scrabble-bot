@@ -46,6 +46,8 @@ public class ScrabbleBot {
 		
 		switch(gameState){
 			case GAME_STATE_EXCHANGED_LIMIT_REACHED:
+				// last turn does not count
+				turn--;
 				System.out.println("No more possibilities. Exchange limit reached. \n\nGame ended.");
 				break;
 			case GAME_STATE_OUT_OF_LETTERS:
@@ -55,13 +57,13 @@ public class ScrabbleBot {
 		
 		rack.printScore();
 		System.out.println(
-			String.format("Played %d turns in %.3f seconds. Avg: %.3f seconds", turn - numExchanges, 
+			String.format("Played %d words in %.3f seconds. Avg: %.3f seconds", turn - numExchanges, 
 			(totalTurnTime / 1000f), (totalTurnTime / turn / 1000f)));
 		System.out.println("Swapped " + numExchanges + " times");
 	}
     
     private int takeTurn(){
-        turn++;
+    	turn++;
     	turnStart = System.currentTimeMillis();
 
     	WordPosition bestWordPos = (board.isEmpty())
@@ -94,7 +96,7 @@ public class ScrabbleBot {
 //            // We found the best word for the board, so lets put it down
 //            playWord(bestWordPos);
 //        }
-        
+
     	printTurnTime(turnStart);
     	System.out.println("");
     	

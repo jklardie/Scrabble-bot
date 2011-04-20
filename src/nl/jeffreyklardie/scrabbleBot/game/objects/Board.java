@@ -368,11 +368,6 @@ public class Board {
     		// Word is invalid if it is not a new word on the board
     		if(!newWord) return VALID_WORD_NOT_NEW;
     		
-//    		if(fullWord.length() > wordLength){
-//    			String direction = (wordPos.horizontal) ? "horizontal" : "vertical";
-//    			System.out.println("Check Vertical word '"+fullWord+"' created by laying " + direction + " word '"+wordPos.word+"'");
-//    		}
-    		
     		if(wordPos.horizontal) wordPos.addScoreLine("+" + wordScore * wordMultiplier + " " + fullWord);
     		
     		return wordScore * wordMultiplier;
