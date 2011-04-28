@@ -19,7 +19,7 @@ public class WordPosition {
 	}
 	
 	public WordPosition(){
-		this(0, 0, true, 0, null);
+		this(0, 0, true, 0, "");
 	}
 	
 	public void addScoreLine(String bonusText){
