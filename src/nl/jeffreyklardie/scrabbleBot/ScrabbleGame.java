@@ -7,9 +7,8 @@ public class ScrabbleGame {
     public static final int GAME_STATE_OUT_OF_LETTERS 			= 1;
     public static final int GAME_STATE_EXCHANGED_LIMIT_REACHED 	= 2;
 	
-	private int turn = 0;
+	private static int turn = 0;
 	private static ScrabbleBot[] players;
-	private static int currentPlayer;
 	
 	public ScrabbleGame(int numPlayers){
 		players = new ScrabbleBot[numPlayers];
@@ -23,9 +22,10 @@ public class ScrabbleGame {
 	private void startGame(){
 		int gameState = GAME_STATE_RUNNING;
 		while(gameState == GAME_STATE_RUNNING){
-			currentPlayer = turn++ % players.length;
-			gameState = players[currentPlayer].takeTurn();
-			System.out.println("---------------------------------------------------------------------------");
+			turn++;
+			System.out.println();
+			gameState = players[getCurrentPlayer()].takeTurn();
+			System.out.println();
 		}
 		
 		switch(gameState){
@@ -41,16 +41,19 @@ public class ScrabbleGame {
 		for(ScrabbleBot player : players){
 			player.printFinalScore();
 			turn++;
-			System.out.println();
 		}
 	}
 	
 	public static void printLine(String line){
-//		if(currentPlayer % 2 == 0){
-			System.out.println(players[currentPlayer].getTag() + "    |    " + line);
-//		} else {
-//			System.out.println(String.format("            |    " + line + "%48s" + players[currentPlayer].getTag(), "    |    "));
-//		}
+		if(getCurrentPlayer() % 2 == 0){
+			System.out.println(players[getCurrentPlayer()].getTag() + "    |    " + line);
+		} else {
+			System.out.println(String.format("%80s    |    %s", players[getCurrentPlayer()].getTag(), line));
+		}
+	}
+	
+	private static int getCurrentPlayer(){
+		return turn % players.length;
 	}
 	
 	public static void main(String[] args){

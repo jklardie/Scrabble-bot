@@ -2,6 +2,8 @@ package nl.jeffreyklardie.scrabbleBot.game.objects;
 
 import java.util.Random;
 
+import nl.jeffreyklardie.scrabbleBot.ScrabbleGame;
+
 
 public class Rack {
 
@@ -35,7 +37,7 @@ public class Rack {
             rackLine += letter + " ";
         }
         
-        System.out.println("\nRack: [" + rackLine + "]\n");
+        ScrabbleGame.printLine("Rack: [" + rackLine + "]");
     }
     
     /**
@@ -86,7 +88,7 @@ public class Rack {
     			if(rack[j] == LetterBag.JOKER){
     				rack[j] = LetterBag.EMPTY_LETTER;
     				
-    				System.out.println("Used joker for letter " + remainingLetters.charAt(0));
+    				ScrabbleGame.printLine("Used joker for letter " + remainingLetters.charAt(0));
     				remainingLetters.deleteCharAt(0);
     				if(++numRemoved == letters.length) break;
     			}
@@ -96,7 +98,7 @@ public class Rack {
     	numLettersOnRack -= numRemoved;
     
     	if(word.length() != numRemoved){
-    		System.out.println("Error. Could not play word from rack");
+    		ScrabbleGame.printLine("Error. Could not play word from rack");
     		System.exit(1);
     	}
     	
@@ -136,7 +138,7 @@ public class Rack {
     }
     
     public void printScore(){
-    	System.out.println("Total score: " + score);
+    	ScrabbleGame.printLine("Total score: " + score);
     }
     
     @Override

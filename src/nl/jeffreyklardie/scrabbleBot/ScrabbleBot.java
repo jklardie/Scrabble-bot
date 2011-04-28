@@ -22,57 +22,34 @@ public class ScrabbleBot {
     private Dictionary dict;
     private Board board;
     
+    private String tag;
+    
     private int turn = 0;
     private int numExchanges = 0;
     private int numSequentialExchanges = 0;
     private long totalTurnTime = 0;
     private long turnStart;
     
-	public ScrabbleBot(){
+	public ScrabbleBot(String tag){
         Dictionary.setDictionaryFile(DICTIONARY_PATH);
         dict = Dictionary.getInstance();
         dict.printNumWords();
         
         board = Board.getInstance();
+        this.tag = tag;
     }
 	
 	public void startGame(){
 		rack = new Rack();
-		
-		int gameState = GAME_STATE_RUNNING;
-		while(gameState == GAME_STATE_RUNNING){
-			gameState = takeTurn();
-		}
-		
-		switch(gameState){
-			case GAME_STATE_EXCHANGED_LIMIT_REACHED:
-				// last turn does not count
-				turn--;
-				System.out.println("No more possibilities. Exchange limit reached. \n\nGame ended.");
-				break;
-			case GAME_STATE_OUT_OF_LETTERS:
-				System.out.println("Ran out of letters. \n\nGame ended.");
-				break;
-		}
-		
-		rack.printScore();
-		System.out.println(
-			String.format("Played %d words in %.3f seconds. Avg: %.3f seconds", turn - numExchanges, 
-			(totalTurnTime / 1000f), (totalTurnTime / turn / 1000f)));
-		System.out.println("Swapped " + numExchanges + " times");
 	}
     
-    private int takeTurn(){
+    public int takeTurn(){
     	turn++;
     	turnStart = System.currentTimeMillis();
 
     	WordPosition bestWordPos = (board.isEmpty())
     		? WordFinder.getBestWordPosForEmptyBoard(rack)
     		: WordFinder.getBestWordPos(board, rack);
-    		
-//    	ArrayList<WordPosition> possibleWords = (board.isEmpty())
-//    		? WordFinder.getPossibleWordsForEmptyBoard(rack)
-//    		: WordFinder.getPossibleWords(board, rack);
     		
     	rack.printRack();
     		
@@ -81,29 +58,16 @@ public class ScrabbleBot {
     	} 
     	
     	playWord(bestWordPos);
-//        if(possibleWords.size() == 0){
-//            return exchangeLetters();
-//        } else {
-//            WordPosition bestWordPos = possibleWords.get(0);
-//            WordPosition wordPos;
-//            for(int i=1; i<possibleWords.size(); i++){
-//            	wordPos = possibleWords.get(i);
-//                if(wordPos.word != null && wordPos.score > bestWordPos.score){
-//                    bestWordPos = wordPos;
-//                }
-//            }
-//            
-//            // We found the best word for the board, so lets put it down
-//            playWord(bestWordPos);
-//        }
 
     	printTurnTime(turnStart);
-    	System.out.println("");
+    	ScrabbleGame.printLine("");
     	
     	board.printBoard();
+    	ScrabbleGame.printLine("");
     	rack.printScore();
+    	
 //    	if(!board.validBoardState()){
-//    	    System.out.println("Error. Board state is invalid at the end of the turn.");
+//    	    ScrabbleGame.printLine("Error. Board state is invalid at the end of the turn.");
 //    	    System.exit(1);
 //    	}
     	
@@ -116,11 +80,13 @@ public class ScrabbleBot {
     	numSequentialExchanges = 0;
     	
     	String direction = (wordPos.horizontal) ? "horizontal" : "vertical";
-    	System.out.println("Playing " + direction + " word " + wordPos.word + "(r:"+wordPos.row+"-c:"+wordPos.col+") with score: " + wordPos.score);
-    	System.out.println(wordPos.scoreCalculation);
-    	System.out.println("------------");
-    	System.out.println(" " + wordPos.score + " total");
-    	System.out.println();
+    	ScrabbleGame.printLine("Playing " + direction + " word " + wordPos.word + "(r:"+wordPos.row+"-c:"+wordPos.col+") with score: " + wordPos.score);
+    	for(String scoreLine : wordPos.scoreCalculation.split("\\n"))
+    		ScrabbleGame.printLine(scoreLine);
+    	
+    	ScrabbleGame.printLine("------------");
+    	ScrabbleGame.printLine(" " + wordPos.score + " total");
+    	ScrabbleGame.printLine("");
         
         rack.addScore(wordPos.score);
         board.putWord(wordPos);
@@ -132,16 +98,16 @@ public class ScrabbleBot {
         
         numExchanges++;
         
-    	System.out.println("No words possible. Trying to exchange " + Rack.NUM_LETTERS_TO_EXCHANGE + " letters");
+    	ScrabbleGame.printLine("No words possible. Trying to exchange " + Rack.NUM_LETTERS_TO_EXCHANGE + " letters");
         
         // No possibilities. Randomly change n letters
         int numExchangedLetters = (numSequentialExchanges == 2)
         	? rack.exchangeLetters(Rack.NUM_LETTERS_ON_RACK) 
         	: rack.exchangeLetters(Rack.NUM_LETTERS_TO_EXCHANGE);
         if(numExchangedLetters > 0){
-            System.out.println("Exchanged " + numExchangedLetters + " letters");
+            ScrabbleGame.printLine("Exchanged " + numExchangedLetters + " letters");
         } else {
-            System.out.println("Not enough letters remaining to exchange. Pass. :(");
+            ScrabbleGame.printLine("Not enough letters remaining to exchange. Pass. :(");
         }
         
         return GAME_STATE_RUNNING;
@@ -150,12 +116,20 @@ public class ScrabbleBot {
     private void printTurnTime(long turnStart){
     	long turnTime = System.currentTimeMillis()-turnStart;
     	totalTurnTime += turnTime;
-        System.out.println(String.format("Turn %d took %.3f seconds", turn, (turnTime / 1000f)));
-        System.out.println(String.format("Average turn time: %.3f seconds", (totalTurnTime / turn / 1000f)));
+        ScrabbleGame.printLine(String.format("Turn %d took %.3f seconds", turn, (turnTime / 1000f)));
+        ScrabbleGame.printLine(String.format("Average turn time: %.3f seconds", (totalTurnTime / turn / 1000f)));
     }
+
+	public void printFinalScore(){
+		rack.printScore();
+		ScrabbleGame.printLine(
+			String.format("Played %d words in %.3f seconds. Avg: %.3f seconds", turn - numExchanges, 
+			(totalTurnTime / 1000f), (totalTurnTime / turn / 1000f)));
+		ScrabbleGame.printLine("Swapped " + numExchanges + " times");
+	}
+	
+	public String getTag(){
+		return tag;
+	}
     
-    public static void main(String[] args){
-        ScrabbleBot bot = new ScrabbleBot();
-        bot.startGame();
-    }
 }

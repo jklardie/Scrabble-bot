@@ -3,6 +3,7 @@ package nl.jeffreyklardie.scrabbleBot.game.objects;
 
 import java.util.ArrayList;
 
+import nl.jeffreyklardie.scrabbleBot.ScrabbleGame;
 import nl.jeffreyklardie.scrabbleBot.util.Dictionary;
 import nl.jeffreyklardie.scrabbleBot.util.WordPosition;
 
@@ -393,8 +394,8 @@ public class Board {
         	
         	letter = board[r][c];
         	if(letter != LetterBag.EMPTY_LETTER && letter != newLetter){
-        		System.out.println("Unable to play word: " + wordPos.word);
-        		System.out.println("Row: " + wordPos.row + ", col: " + wordPos.col + ", horizontal: "+ wordPos.horizontal);
+        		ScrabbleGame.printLine("Unable to play word: " + wordPos.word);
+        		ScrabbleGame.printLine("Row: " + wordPos.row + ", col: " + wordPos.col + ", horizontal: "+ wordPos.horizontal);
         		System.exit(1);
         	} 
         	
@@ -507,8 +508,8 @@ public class Board {
     }
     
     public void printBoard(){
-        System.out.println("     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 ");
-        System.out.println("   +++++++++++++++++++++++++++++++++");
+        ScrabbleGame.printLine("     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 ");
+        ScrabbleGame.printLine("   +++++++++++++++++++++++++++++++++");
         for(int row=0; row<BOARD_SIZE; row++){
         	String r = (row < 10) ? " " + row : row + "";
         	r+= " + ";
@@ -516,9 +517,9 @@ public class Board {
                 r += board[row][col] + " ";
             }
             r += "+";
-            System.out.println(r);
+            ScrabbleGame.printLine(r);
         }
-        System.out.println("   +++++++++++++++++++++++++++++++++");
+        ScrabbleGame.printLine("   +++++++++++++++++++++++++++++++++");
     }
     
     
