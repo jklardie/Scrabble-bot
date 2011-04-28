@@ -9,12 +9,6 @@ import nl.jeffreyklardie.scrabbleBot.util.WordPosition;
 
 public abstract class WordFinder {
 
-	/**
-	 * The best word position as calculated in the previous turn. 
-	 * This word position is not yet played. Using this, we can 
-	 */
-	private static WordPosition bestWordPos = new WordPosition();
-    
 	public static WordPosition getBestWordPos(Board board, Rack rack){
 		WordPosition bestWordPos = new WordPosition();
 		
@@ -50,20 +44,17 @@ public abstract class WordFinder {
 		// the second best word position is used to quickly determine what we will
 		// play in the next turn (so we only have to check the changed rows/columns).
 		WordPosition bestWordPos = new WordPosition();
-		WordPosition secondBestWordPos = new WordPosition();
 		
 		int letterIndex;
 		char letter = board.get(row, col);
 		WordPosition wordPos = new WordPosition();
-		String word;
 		String rackLetters = rack.getLetters();
 
 		// check horizontal words
 		ArrayList<String> possibleHorizontalWords = Dictionary.getInstance().getWordsWithLetters(
 				board.getLettersOnCol(col), rackLetters);
 		
-		for(int i=0; i<possibleHorizontalWords.size(); i++){
-			word = possibleHorizontalWords.get(i);
+		for(String word : possibleHorizontalWords){
 			if(word.indexOf(letter) == -1) continue;
 			
 			letterIndex = word.indexOf(letter);
@@ -71,12 +62,7 @@ public abstract class WordFinder {
 				if(col-letterIndex >= 0 && (col-letterIndex+word.length()-1) < Board.BOARD_SIZE){
 					wordPos = new WordPosition(row, col - letterIndex, true, -1, word);
 					wordPos.score = board.getWordScore(wordPos, rack);
-					if(wordPos.score > bestWordPos.score) {
-						secondBestWordPos = bestWordPos;
-						bestWordPos = wordPos;
-					} else if(wordPos.score > secondBestWordPos.score){
-						secondBestWordPos = wordPos;
-					}
+					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 				}
 				letterIndex = word.indexOf(letter, letterIndex+1);
 			}
@@ -86,8 +72,7 @@ public abstract class WordFinder {
 		ArrayList<String> possibleVerticalWords = Dictionary.getInstance().getWordsWithLetters(
 				board.getLettersOnRow(row), rackLetters);
 		
-		for(int i=0; i<possibleVerticalWords.size(); i++){
-			word = possibleVerticalWords.get(i);
+		for(String word : possibleVerticalWords){
 			if(word.indexOf(letter) == -1) continue;
 			
 			letterIndex = word.indexOf(letter);
@@ -95,21 +80,12 @@ public abstract class WordFinder {
 				if(row-letterIndex >= 0 && (row-letterIndex+word.length()-1) < Board.BOARD_SIZE){
 					wordPos = new WordPosition(row - letterIndex, col, false, -1, word);
 					wordPos.score = board.getWordScore(wordPos, rack);
-					if(wordPos.score > bestWordPos.score) {
-						secondBestWordPos = bestWordPos;
-						bestWordPos = wordPos;
-					} else if(wordPos.score > secondBestWordPos.score){
-						secondBestWordPos = wordPos;
-					}
+					if(wordPos.score > bestWordPos.score) bestWordPos = wordPos;
 				}
 				letterIndex = word.indexOf(letter, letterIndex+1);
 			}
 		}
 
-		if(secondBestWordPos.score > 0){
-			bestWordPos = secondBestWordPos;
-		}
-		
 		if(bestWordPos.score > 0)
 			return bestWordPos;
 		
